@@ -1,4 +1,14 @@
-from sqlalchemy import Boolean, Column, DateTime, Integer, String
+from sqlalchemy import (
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+)
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from .database import Base
@@ -16,3 +26,21 @@ class User(Base):
     is_superuser = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    attendance_records = relationship("Attendance", back_populates="user")
+
+
+class Attendance(Base):
+    __tablename__ = "attendance"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    date = Column(Date, nullable=False)
+    check_in_time = Column(DateTime(timezone=True), nullable=False)
+    check_out_time = Column(DateTime(timezone=True), nullable=True)
+    status = Column(String, default="checked_in")
+    work_hours = Column(Float, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    user = relationship("User", back_populates="attendance_records")
