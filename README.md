@@ -157,6 +157,61 @@ This will run:
 - **Backend**: ruff, black, isort
 - **Frontend**: eslint, prettier
 
+## Attendance API
+
+The application includes comprehensive attendance tracking with the following endpoints:
+
+### Check In
+```bash
+curl -X POST "http://localhost:8000/attendance/check-in" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### Check Out
+```bash
+curl -X POST "http://localhost:8000/attendance/check-out" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### Get Today's Attendance
+```bash
+curl -X GET "http://localhost:8000/attendance/today" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### Get Attendance Records
+```bash
+curl -X GET "http://localhost:8000/attendance/records?start_date=2024-01-01&end_date=2024-01-31&limit=50" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### Get Attendance Summary
+```bash
+curl -X GET "http://localhost:8000/attendance/summary?start_date=2024-01-01&end_date=2024-01-31" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### Get Attendance Status
+```bash
+curl -X GET "http://localhost:8000/attendance/status" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### Business Rules
+
+- **Check-in**: Users can only check in once per day
+- **Check-out**: Users must check in before checking out
+- **Work Hours**: Automatically calculated when checking out
+- **Date Filtering**: Support for date range queries on attendance records
+- **Authentication**: All attendance endpoints require valid JWT token
+
+### Database Schema
+
+The attendance system uses the following database structure:
+- **attendance** table with foreign key to users table
+- Indexes on user_id and date for efficient queries
+- Timezone-aware datetime fields for accurate time tracking
+
 ## Environment Variables
 
 Copy `.env.example` to `.env` and configure:
@@ -175,6 +230,8 @@ attendance-app/
 │   │   ├── models.py # Database models
 │   │   ├── schemas.py # Pydantic schemas
 │   │   ├── auth.py   # Authentication utilities
+│   │   ├── attendance.py # Attendance business logic
+│   │   ├── database.py# Database configuration
 │   │   └── main.py   # FastAPI application
 │   ├── tests/        # Test suite
 │   ├── alembic/      # Database migrations
@@ -182,6 +239,7 @@ attendance-app/
 │   └── pyproject.toml # Python dependencies
 ├── frontend/         # React frontend
 │   ├── src/         # Source code
+│   ├── public/       # Static assets
 │   ├── Dockerfile   # Frontend container
 │   └── package.json # Node dependencies
 ├── docker-compose.yml # Service orchestration
