@@ -1,14 +1,17 @@
+import os
+
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import os
-from dotenv import load_dotenv
+
+from .routers import auth
 
 load_dotenv()
 
 app = FastAPI(
     title="Attendance App API",
     description="FastAPI backend for attendance management",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 origins = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
@@ -21,9 +24,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router)
+
+
 @app.get("/")
 async def root():
     return {"message": "Attendance App API"}
+
 
 @app.get("/health")
 async def health_check():
