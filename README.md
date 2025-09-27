@@ -220,6 +220,79 @@ Copy `.env.example` to `.env` and configure:
 - `JWT_SECRET`: Secret key for JWT tokens (change in production!)
 - `CORS_ORIGINS`: Allowed CORS origins
 
+## Frontend
+
+The frontend is built with React 18, TypeScript, and Vite. It uses Tailwind CSS for styling and shadcn/ui for components.
+
+### Key Features
+- Modern React with TypeScript
+- Tailwind CSS for styling
+- shadcn/ui component library
+- Vite for fast development
+- ESLint and Prettier for code quality
+- Cookie-based JWT authentication
+- Protected routing with role-based access
+- Comprehensive attendance management UI
+
+### Authentication System
+- **Login Page**: `/login` with email/password form
+- **Cookie-based Sessions**: JWT tokens stored in secure cookies
+- **Protected Routes**: Role-based access control
+- **Automatic Redirects**: Redirect to appropriate dashboard after login
+
+### Routes
+- `/login` - Login page (public)
+- `/app` - Engineer dashboard (requires authentication)
+- `/admin` - Admin dashboard (requires superuser privileges)
+- `/` - Redirects to `/app`
+
+### Engineer Attendance UI
+The `/app` route provides a comprehensive attendance management interface:
+
+#### Features
+- **Month Navigation**: Navigate through different months to view attendance records
+- **Daily Records Table**: View all attendance records for the selected month
+- **Today's Attendance Form**: Quick form to update today's attendance with:
+  - Clock In Time (required, HH:MM format)
+  - Clock Out Time (optional, HH:MM format)
+  - Break Minutes (number, default 0, must be ≥ 0)
+  - Note (optional text field)
+
+#### Validation
+- Clock in time is required
+- Clock out time must be after clock in time (when both provided)
+- Break minutes must be 0 or greater
+- Real-time form validation with error messages
+- Loading states during form submission
+
+#### API Integration
+- Fetches monthly attendance records from `GET /attendance/records`
+- Saves attendance via `PUT /attendance/me/{YYYY-MM-DD}`
+- Displays success/error toast notifications
+- Automatic data refresh after successful saves
+
+### Development
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend will be available at http://localhost:5175
+
+### Testing
+```bash
+cd frontend
+npm test        # Run tests
+npm run test:ui # Run tests with UI
+```
+
+### Security Features
+- JWT tokens stored in secure, httpOnly cookies
+- Automatic token validation on page load
+- Token expiration handling with redirect to login
+- CSRF protection with SameSite cookie policy
+
 ## Project Structure
 
 ```
@@ -239,6 +312,11 @@ attendance-app/
 │   └── pyproject.toml # Python dependencies
 ├── frontend/         # React frontend
 │   ├── src/         # Source code
+│   │   ├── components/ # React components
+│   │   ├── contexts/   # React contexts
+│   │   ├── pages/      # Page components
+│   │   ├── lib/        # Utilities and API
+│   │   └── test/       # Test files
 │   ├── public/       # Static assets
 │   ├── Dockerfile   # Frontend container
 │   └── package.json # Node dependencies

@@ -48,6 +48,31 @@ export interface LoginResponse {
   token_type: string;
 }
 
+export interface AttendanceRecord {
+  id: number;
+  date: string;
+  check_in_time: string;
+  check_out_time: string | null;
+  status: string;
+  work_hours: number | null;
+  break_minutes: number;
+  note: string | null;
+}
+
+export interface AttendanceUpsertRequest {
+  clock_in: string;
+  clock_out?: string;
+  break_minutes: number;
+  note?: string;
+}
+
+export interface AttendanceSummary {
+  total_days: number;
+  total_hours: number;
+  average_hours: number;
+  records: AttendanceRecord[];
+}
+
 export const authApi = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
     const formData = new FormData();
@@ -67,5 +92,36 @@ export const authApi = {
   
   logout: () => {
     Cookies.remove('access_token');
+  }
+};
+
+export const attendanceApi = {
+  getRecords: async (startDate?: string, endDate?: string, limit?: number): Promise<AttendanceRecord[]> => {
+    const params = new URLSearchParams();
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    if (limit) params.append('limit', limit.toString());
+    
+    const response = await api.get(`/attendance/records?${params.toString()}`);
+    return response.data;
+  },
+  
+  getSummary: async (startDate?: string, endDate?: string): Promise<AttendanceSummary> => {
+    const params = new URLSearchParams();
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    
+    const response = await api.get(`/attendance/summary?${params.toString()}`);
+    return response.data;
+  },
+  
+  upsertRecord: async (workDate: string, data: AttendanceUpsertRequest): Promise<AttendanceRecord> => {
+    const response = await api.put(`/attendance/me/${workDate}`, data);
+    return response.data;
+  },
+  
+  getStatus: async (): Promise<AttendanceRecord | null> => {
+    const response = await api.get('/attendance/status');
+    return response.data;
   }
 };
