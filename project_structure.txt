@@ -1,0 +1,50 @@
+total 40
+drwxr-xr-x  5 ubuntu ubuntu 4096 Sep 27 07:12 .
+drwxr-x--- 19 ubuntu ubuntu 4096 Sep 27 07:10 ..
+-rw-rw-r--  1 ubuntu ubuntu  162 Sep 27 07:04 .env.example
+drwxr-xr-x  8 ubuntu ubuntu 4096 Sep 27 07:12 .git
+-rw-rw-r--  1 ubuntu ubuntu  694 Sep 27 07:10 .gitignore
+-rw-rw-r--  1 ubuntu ubuntu 1257 Sep 27 07:07 .pre-commit-config.yaml
+-rw-rw-r--  1 ubuntu ubuntu  711 Sep 27 07:04 README.md
+drwxr-xr-x  4 ubuntu ubuntu 4096 Sep 27 07:05 backend
+-rw-rw-r--  1 ubuntu ubuntu 1075 Sep 27 07:06 docker-compose.yml
+drwxr-xr-x  5 ubuntu ubuntu 4096 Sep 27 07:07 frontend
+-rw-r--r--  1 ubuntu ubuntu    0 Sep 27 07:12 project_structure.txt
+-rw-r--r--  1 ubuntu ubuntu    0 Sep 27 07:12 project_tree.txt
+
+Backend structure:
+total 176
+drwxr-xr-x 4 ubuntu ubuntu   4096 Sep 27 07:05 .
+drwxr-xr-x 5 ubuntu ubuntu   4096 Sep 27 07:12 ..
+-rw-rw-r-- 1 ubuntu ubuntu    176 Sep 27 07:05 .env.example
+-rw-r--r-- 1 ubuntu ubuntu      8 Sep 27 07:04 .python-version
+-rw-rw-r-- 1 ubuntu ubuntu    294 Sep 27 07:08 Dockerfile
+drwxrwxr-x 3 ubuntu ubuntu   4096 Sep 27 07:09 app
+-rw-r--r-- 1 ubuntu ubuntu 146033 Sep 27 07:06 poetry.lock
+-rw-r--r-- 1 ubuntu ubuntu   1181 Sep 27 07:07 pyproject.toml
+drwxr-xr-x 5 ubuntu ubuntu   4096 Sep 27 07:04 venv
+
+Frontend structure:
+total 400
+drwxr-xr-x   5 ubuntu ubuntu   4096 Sep 27 07:07 .
+drwxr-xr-x   5 ubuntu ubuntu   4096 Sep 27 07:12 ..
+-rw-rw-r--   1 ubuntu ubuntu     35 Sep 27 07:06 .env.example
+-rw-rw-r--   1 ubuntu ubuntu    642 Sep 27 07:07 .eslintrc.js
+-rw-r--r--   1 ubuntu ubuntu    253 Sep 27 07:05 .gitignore
+-rw-rw-r--   1 ubuntu ubuntu    105 Sep 27 07:07 .prettierrc
+-rw-rw-r--   1 ubuntu ubuntu    151 Sep 27 07:06 Dockerfile
+-rw-r--r--   1 ubuntu ubuntu   1607 Sep 27 07:05 README.md
+-rw-r--r--   1 ubuntu ubuntu    441 Sep 27 07:06 components.json
+-rw-r--r--   1 ubuntu ubuntu    734 Sep 27 07:05 eslint.config.js
+-rw-r--r--   1 ubuntu ubuntu    357 Sep 27 07:05 index.html
+drwxr-xr-x 379 ubuntu ubuntu  16384 Sep 27 07:06 node_modules
+-rw-r--r--   1 ubuntu ubuntu 309344 Sep 27 07:06 package-lock.json
+-rw-r--r--   1 ubuntu ubuntu   2846 Sep 27 07:06 package.json
+-rw-r--r--   1 ubuntu ubuntu     80 Sep 27 07:05 postcss.config.js
+drwxr-xr-x   2 ubuntu ubuntu   4096 Sep 27 07:05 public
+drwxr-xr-x   6 ubuntu ubuntu   4096 Sep 27 07:06 src
+-rw-r--r--   1 ubuntu ubuntu   1261 Sep 27 07:06 tailwind.config.js
+-rw-r--r--   1 ubuntu ubuntu    759 Sep 27 07:05 tsconfig.app.json
+-rw-r--r--   1 ubuntu ubuntu    234 Sep 27 07:05 tsconfig.json
+-rw-r--r--   1 ubuntu ubuntu    593 Sep 27 07:05 tsconfig.node.json
+-rw-r--r--   1 ubuntu ubuntu    241 Sep 27 07:05 vite.config.ts
