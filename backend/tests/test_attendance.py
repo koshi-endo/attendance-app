@@ -123,7 +123,7 @@ def test_attendance_requires_authentication(client: TestClient):
         "/attendance/today",
         "/attendance/records",
         "/attendance/summary",
-        "/attendance/status"
+        "/attendance/status",
     ]
 
     for endpoint in endpoints:
@@ -145,14 +145,14 @@ def test_date_range_filtering(client: TestClient, auth_headers):
 
     response = client.get(
         f"/attendance/records?start_date={yesterday}&end_date={tomorrow}",
-        headers=auth_headers
+        headers=auth_headers,
     )
     assert response.status_code == 200
     assert len(response.json()) == 1
 
     response = client.get(
         f"/attendance/records?start_date={yesterday}&end_date={yesterday}",
-        headers=auth_headers
+        headers=auth_headers,
     )
     assert response.status_code == 200
     assert len(response.json()) == 0

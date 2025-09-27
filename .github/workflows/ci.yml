@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Cache Poetry dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pypoetry
+        key: ${{ runner.os }}-poetry-${{ hashFiles('backend/poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-poetry-
+    
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+    
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        poetry config virtualenvs.create false
+        poetry install
+    
+    - name: Run linting (ruff)
+      working-directory: ./backend
+      run: poetry run ruff check .
+    
+    - name: Run formatting check (black)
+      working-directory: ./backend
+      run: poetry run black --check .
+    
+    - name: Run import sorting check (isort)
+      working-directory: ./backend
+      run: poetry run isort --check-only .
+    
+    - name: Run tests
+      working-directory: ./backend
+      run: poetry run pytest
+    
+    - name: Test Docker build
+      working-directory: ./backend
+      run: docker build -t attendance-backend .
+
+  frontend:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Run linting
+      working-directory: ./frontend
+      run: npm run lint
+    
+    - name: Run tests
+      working-directory: ./frontend
+      run: npm test -- --run
+    
+    - name: Build application
+      working-directory: ./frontend
+      run: npm run build
+    
+    - name: Test Docker build
+      working-directory: ./frontend
+      run: docker build -t attendance-frontend .

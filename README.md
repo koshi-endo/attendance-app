@@ -1,5 +1,7 @@
 # Attendance App
 
+![CI](https://github.com/koshi-endo/attendance-app/workflows/CI/badge.svg)
+
 A modern attendance management system built with FastAPI backend and React TypeScript frontend.
 
 ## Architecture

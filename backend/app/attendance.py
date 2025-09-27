@@ -8,17 +8,23 @@ from sqlalchemy.orm import Session
 from . import models
 
 
-def get_today_attendance(db: Session, user_id: int, target_date: date = None) -> Optional[models.Attendance]:
+def get_today_attendance(
+    db: Session, user_id: int, target_date: date = None
+) -> Optional[models.Attendance]:
     """Get attendance record for a specific date (defaults to today)."""
     if target_date is None:
         target_date = date.today()
 
-    return db.query(models.Attendance).filter(
-        and_(
-            models.Attendance.user_id == user_id,
-            models.Attendance.date == target_date
+    return (
+        db.query(models.Attendance)
+        .filter(
+            and_(
+                models.Attendance.user_id == user_id,
+                models.Attendance.date == target_date,
+            )
         )
-    ).first()
+        .first()
+    )
 
 
 def check_in_user(db: Session, user_id: int) -> models.Attendance:
@@ -30,14 +36,11 @@ def check_in_user(db: Session, user_id: int) -> models.Attendance:
     if existing_record:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Already checked in for today"
+            detail="Already checked in for today",
         )
 
     attendance = models.Attendance(
-        user_id=user_id,
-        date=today,
-        check_in_time=now,
-        status="checked_in"
+        user_id=user_id, date=today, check_in_time=now, status="checked_in"
     )
 
     db.add(attendance)
@@ -55,13 +58,13 @@ def check_out_user(db: Session, user_id: int) -> models.Attendance:
     if not attendance:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No check-in record found for today"
+            detail="No check-in record found for today",
         )
 
     if attendance.check_out_time:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Already checked out for today"
+            detail="Already checked out for today",
         )
 
     work_duration = now - attendance.check_in_time
@@ -82,7 +85,7 @@ def get_user_attendance_records(
     user_id: int,
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
-    limit: int = 100
+    limit: int = 100,
 ) -> List[models.Attendance]:
     """Get attendance records for a user within date range."""
     query = db.query(models.Attendance).filter(models.Attendance.user_id == user_id)
