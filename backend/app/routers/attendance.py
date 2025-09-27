@@ -1,10 +1,10 @@
 from datetime import date, datetime
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.orm import Session
 
-from .. import attendance, auth, schemas
+from .. import attendance, auth, schemas, models
 from ..database import get_db
 
 router = APIRouter(prefix="/attendance", tags=["attendance"])
@@ -98,3 +98,86 @@ async def get_attendance_status(
         "message": f"Checked in at {today_record.check_in_time.strftime('%H:%M')}",
         "duration": str(datetime.now() - today_record.check_in_time).split('.')[0]
     }
+
+
+@router.get("/users", response_model=List[schemas.AttendanceResponse])
+async def get_all_users_attendance(
+    date: date = Query(..., description="Date to get attendance for (YYYY-MM-DD)"),
+    db: Session = Depends(get_db),
+    current_user: schemas.User = Depends(auth.get_current_active_user)
+):
+    """Get attendance records for all users on a specific date (admin only)."""
+    if not current_user.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only administrators can access all users' attendance"
+        )
+    
+    records = db.query(models.Attendance).filter(
+        models.Attendance.date == date
+    ).join(models.User).all()
+    
+    return records
+
+
+@router.get("/user/{user_id}", response_model=List[schemas.Attendance])
+async def get_user_attendance_by_month(
+    user_id: int,
+    month: str = Query(..., description="Month in YYYY-MM format"),
+    db: Session = Depends(get_db),
+    current_user: schemas.User = Depends(auth.get_current_active_user)
+):
+    """Get attendance records for a specific user by month (admin only)."""
+    if not current_user.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only administrators can access other users' attendance"
+        )
+    
+    try:
+        year, month_num = month.split('-')
+        year = int(year)
+        month_num = int(month_num)
+        if month_num < 1 or month_num > 12:
+            raise ValueError()
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid month format. Use YYYY-MM"
+        )
+    
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    from calendar import monthrange
+    _, last_day = monthrange(year, month_num)
+    start_date = date(year, month_num, 1)
+    end_date = date(year, month_num, last_day)
+    
+    records = db.query(models.Attendance).filter(
+        models.Attendance.user_id == user_id,
+        models.Attendance.date >= start_date,
+        models.Attendance.date <= end_date
+    ).order_by(models.Attendance.date).all()
+    
+    return records
+
+
+@router.get("/all-users", response_model=List[schemas.User])
+async def get_all_users(
+    db: Session = Depends(get_db),
+    current_user: schemas.User = Depends(auth.get_current_active_user)
+):
+    """Get all users for admin user selector (admin only)."""
+    if not current_user.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only administrators can access user list"
+        )
+    
+    users = db.query(models.User).filter(models.User.is_active == True).all()
+    return users

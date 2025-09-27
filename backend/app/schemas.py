@@ -53,6 +53,8 @@ class AttendanceBase(BaseModel):
     check_out_time: Optional[datetime] = None
     status: str = "checked_in"
     work_hours: Optional[float] = None
+    break_minutes: int = 0
+    note: Optional[str] = None
 
 
 class AttendanceCreate(BaseModel):
@@ -80,6 +82,8 @@ class AttendanceResponse(BaseModel):
     check_out_time: Optional[datetime] = None
     status: str
     work_hours: Optional[float] = None
+    break_minutes: int = 0
+    note: Optional[str] = None
     user: User
 
     class Config:

@@ -271,6 +271,37 @@ The `/app` route provides a comprehensive attendance management interface:
 - Displays success/error toast notifications
 - Automatic data refresh after successful saves
 
+### Owner Dashboard (`/admin`)
+The `/admin` route provides comprehensive attendance management for owners/administrators:
+
+#### Daily View
+- **Date Picker**: Select any date to view attendance
+- **All Users Table**: Shows attendance for all engineers on selected date
+- **Columns**: User info, clock in/out times, break minutes, work hours, status, notes
+- **CSV Export**: Download daily attendance report
+
+#### Monthly View  
+- **User Selector**: Choose specific engineer to analyze
+- **Month Picker**: Navigate through different months
+- **Summary Cards**: Working days, total hours, average hours, incomplete records
+- **Detailed Table**: All attendance records for selected user/month
+- **CSV Export**: Download monthly user report
+
+#### Features
+- **Role-based Access**: Only superuser accounts can access owner dashboard
+- **Real-time Data**: Live updates from attendance API
+- **Export Functionality**: CSV downloads with proper formatting
+- **Loading States**: Smooth UX with loading indicators
+- **Error Handling**: Graceful error messages and recovery
+- **Responsive Design**: Works on desktop and mobile devices
+
+#### CSV Export Formats
+**Daily Export**: `daily-attendance-YYYY-MM-DD.csv`
+- Columns: Date, User, Email, Clock In, Clock Out, Break Minutes, Work Hours, Status, Note
+
+**Monthly Export**: `monthly-attendance-{username}-YYYY-MM.csv`  
+- Columns: Date, Clock In, Clock Out, Break Minutes, Work Hours, Status, Note
+
 ### Development
 ```bash
 cd frontend

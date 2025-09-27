@@ -95,6 +95,10 @@ export const authApi = {
   }
 };
 
+export interface AttendanceWithUser extends AttendanceRecord {
+  user: User;
+}
+
 export const attendanceApi = {
   getRecords: async (startDate?: string, endDate?: string, limit?: number): Promise<AttendanceRecord[]> => {
     const params = new URLSearchParams();
@@ -122,6 +126,23 @@ export const attendanceApi = {
   
   getStatus: async (): Promise<AttendanceRecord | null> => {
     const response = await api.get('/attendance/status');
+    return response.data;
+  }
+};
+
+export const adminApi = {
+  getAllUsers: async (): Promise<User[]> => {
+    const response = await api.get('/attendance/all-users');
+    return response.data;
+  },
+  
+  getDailyAttendance: async (date: string): Promise<AttendanceWithUser[]> => {
+    const response = await api.get(`/attendance/users?date=${date}`);
+    return response.data;
+  },
+  
+  getUserMonthlyAttendance: async (userId: number, month: string): Promise<AttendanceRecord[]> => {
+    const response = await api.get(`/attendance/user/${userId}?month=${month}`);
     return response.data;
   }
 };
