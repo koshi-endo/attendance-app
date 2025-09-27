@@ -1,7 +1,8 @@
 from datetime import date, datetime
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
 from .. import attendance, auth, schemas
@@ -98,3 +99,28 @@ async def get_attendance_status(
         "message": f"Checked in at {today_record.check_in_time.strftime('%H:%M')}",
         "duration": str(datetime.now() - today_record.check_in_time).split('.')[0]
     }
+
+
+@router.put("/me/{work_date}", response_model=schemas.Attendance)
+async def upsert_my_attendance(
+    work_date: date,
+    attendance_data: schemas.AttendanceUpsert,
+    current_user: schemas.User = Depends(auth.get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Create or update attendance record for a specific date."""
+    try:
+        record = attendance.upsert_attendance_record(
+            db, current_user.id, work_date, attendance_data
+        )
+        return record
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(e)
+        ) from e
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(e)
+        ) from e

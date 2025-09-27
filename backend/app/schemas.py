@@ -1,7 +1,7 @@
-from datetime import date, datetime
+from datetime import date, datetime, time
 from typing import List, Optional
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field, validator
 
 
 class UserBase(BaseModel):
@@ -53,6 +53,8 @@ class AttendanceBase(BaseModel):
     check_out_time: Optional[datetime] = None
     status: str = "checked_in"
     work_hours: Optional[float] = None
+    break_minutes: int = 0
+    note: Optional[str] = None
 
 
 class AttendanceCreate(BaseModel):
@@ -61,6 +63,22 @@ class AttendanceCreate(BaseModel):
 
 class AttendanceUpdate(BaseModel):
     check_out_time: datetime
+
+
+class AttendanceUpsert(BaseModel):
+    clock_in: str = Field(..., pattern=r'^([01]?[0-9]|2[0-3]):[0-5][0-9]$', description="Time in HH:MM format")
+    clock_out: Optional[str] = Field(None, pattern=r'^([01]?[0-9]|2[0-3]):[0-5][0-9]$', description="Time in HH:MM format")
+    break_minutes: int = Field(0, ge=0, description="Break time in minutes")
+    note: Optional[str] = Field(None, max_length=1000, description="Optional note")
+
+    @validator('clock_out')
+    def validate_clock_out(cls, v, values):
+        if v is not None and 'clock_in' in values:
+            clock_in_time = time.fromisoformat(values['clock_in'])
+            clock_out_time = time.fromisoformat(v)
+            if clock_out_time < clock_in_time:
+                raise ValueError('clock_out must be greater than or equal to clock_in')
+        return v
 
 
 class Attendance(AttendanceBase):
@@ -80,6 +98,8 @@ class AttendanceResponse(BaseModel):
     check_out_time: Optional[datetime] = None
     status: str
     work_hours: Optional[float] = None
+    break_minutes: int
+    note: Optional[str]
     user: User
 
     class Config:

@@ -161,22 +161,41 @@ This will run:
 
 The application includes comprehensive attendance tracking with the following endpoints:
 
-### Check In
-```bash
-curl -X POST "http://localhost:8000/attendance/check-in" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
+### Current Endpoints
 
-### Check Out
+#### Create/Update Attendance Record
 ```bash
-curl -X POST "http://localhost:8000/attendance/check-out" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
+# Create a new attendance record
+curl -X PUT "http://localhost:8000/attendance/me/2023-12-01" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "clock_in": "09:00",
+    "clock_out": "17:00",
+    "break_minutes": 60,
+    "note": "Regular work day"
+  }'
 
-### Get Today's Attendance
-```bash
-curl -X GET "http://localhost:8000/attendance/today" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+# Update existing record (same endpoint)
+curl -X PUT "http://localhost:8000/attendance/me/2023-12-01" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "clock_in": "08:30",
+    "clock_out": "17:30",
+    "break_minutes": 45,
+    "note": "Updated work day"
+  }'
+
+# Create record with only clock-in (work in progress)
+curl -X PUT "http://localhost:8000/attendance/me/2023-12-01" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "clock_in": "09:00",
+    "break_minutes": 0,
+    "note": "Started work"
+  }'
 ```
 
 ### Get Attendance Records
@@ -197,18 +216,65 @@ curl -X GET "http://localhost:8000/attendance/status" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
+### Legacy Endpoints (Deprecated)
+
+⚠️ **These endpoints are deprecated and will be removed in a future version. Use `PUT /attendance/me/{work_date}` instead.**
+
+#### Check In (Legacy)
+```bash
+curl -X POST "http://localhost:8000/attendance/check-in" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+#### Check Out (Legacy)
+```bash
+curl -X POST "http://localhost:8000/attendance/check-out" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+#### Get Today's Attendance (Legacy)
+```bash
+curl -X GET "http://localhost:8000/attendance/today" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### Attendance Fields
+
+| Field | Type | Description | Validation |
+|-------|------|-------------|------------|
+| `clock_in` | String | Clock-in time in HH:MM format | Required, 24-hour format |
+| `clock_out` | String | Clock-out time in HH:MM format | Optional, must be >= clock_in |
+| `break_minutes` | Integer | Break time in minutes | Default: 0, minimum: 0 |
+| `note` | String | Optional note | Max length: 1000 characters |
+
 ### Business Rules
 
-- **Check-in**: Users can only check in once per day
-- **Check-out**: Users must check in before checking out
-- **Work Hours**: Automatically calculated when checking out
-- **Date Filtering**: Support for date range queries on attendance records
+- **Upsert Behavior**: Creates new record if none exists for the date, otherwise updates existing record
+- **Time Validation**: If both clock_in and clock_out are provided, clock_out must be >= clock_in
+- **Work Hours Calculation**: `(clock_out - clock_in) - (break_minutes / 60)`
 - **Authentication**: All attendance endpoints require valid JWT token
+- **Permission**: Engineers can only access their own attendance records
 
 ### Database Schema
 
 The attendance system uses the following database structure:
-- **attendance** table with foreign key to users table
+
+#### Attendance Table Fields
+
+| Field | Type | Description | Default |
+|-------|------|-------------|---------|
+| `id` | Integer | Primary key | Auto-generated |
+| `user_id` | Integer | Foreign key to users table | Required |
+| `date` | Date | Work date | Required |
+| `check_in_time` | DateTime | Clock-in timestamp | Required |
+| `check_out_time` | DateTime | Clock-out timestamp | Optional |
+| `status` | String | Current status | "checked_in" or "checked_out" |
+| `work_hours` | Float | Calculated work hours | Auto-calculated |
+| `break_minutes` | Integer | Break time in minutes | 0 |
+| `note` | Text | Optional note | NULL |
+| `created_at` | DateTime | Record creation time | Auto-generated |
+| `updated_at` | DateTime | Last update time | Auto-updated |
+
 - Indexes on user_id and date for efficient queries
 - Timezone-aware datetime fields for accurate time tracking
 
