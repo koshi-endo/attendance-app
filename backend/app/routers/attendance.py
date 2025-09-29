@@ -175,6 +175,29 @@ async def get_user_attendance_by_month(
     return records
 
 
+@router.put("/me/{work_date}", response_model=schemas.Attendance)
+async def upsert_attendance(
+    work_date: date,
+    attendance_data: schemas.AttendanceUpsert,
+    db: Session = Depends(get_db),
+    current_user: schemas.User = Depends(auth.get_current_active_user),
+):
+    """Create or update attendance record for a specific date."""
+    # Validate date is not in the future (except for admin users)
+    if work_date > date.today() and not current_user.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot create attendance records for future dates",
+        )
+    
+    return attendance.upsert_attendance_record(
+        db, 
+        current_user.id, 
+        work_date, 
+        attendance_data.dict()
+    )
+
+
 @router.get("/all-users", response_model=List[schemas.User])
 async def get_all_users(
     db: Session = Depends(get_db),

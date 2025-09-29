@@ -90,6 +90,13 @@ class AttendanceResponse(BaseModel):
         from_attributes = True
 
 
+class AttendanceUpsert(BaseModel):
+    clock_in: str  # Time in HH:MM format
+    clock_out: Optional[str] = None  # Time in HH:MM format
+    break_minutes: int = 0
+    note: Optional[str] = None
+
+
 class AttendanceSummary(BaseModel):
     total_days: int
     total_hours: float
